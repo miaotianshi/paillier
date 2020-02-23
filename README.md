@@ -15,13 +15,33 @@ However, they seem not to support float arithmetic. The Paillier cryptosystem fo
 
 https://github.com/data61/python-paillier
 
+### Example
+
+```go
+package main
+
+import "fmt"
+import "miaotianshi/paillier"
+
+func main() {
+	publicKey, privateKey := paillier.GeneratePaillierKeypair(1024)
+
+	x, y := int64(123), int64(45)
+	x_ := publicKey.Encrypt(x, paillier.PrecisionUnused, nil)
+	y_ := publicKey.Encrypt(y, paillier.PrecisionUnused, nil)
+	z_ := x_.Add(y_)
+	z := privateKey.Decrypt(z_)
+	fmt.Printf("x=%d, y=%d, z=%f\n", x, y, z)
+}
+```
+
 ### Bugs
 
 **1. EncryptedNumber.DecreaseExponentTo (fixed)** 
 
 The `n.Mul` calls `EncodedNumber.Encode` and if we don't change the value to int64, the `Encode` function will encode the value as float64, which cause a serious bug.
 
-```go
+```
 func (n *EncryptedNumber) DecreaseExponentTo(newExp float64) *EncryptedNumber {
     ...
     // must convert to int64, otherwise cause a terrible bug because switch into float64 branches
